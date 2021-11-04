@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mymemorygame.models.CardMemories
 import com.example.mymemorygame.models.CardSize
@@ -54,6 +56,9 @@ class MemoryCardAdapter(
         fun bind(position: Int) {
             val cardMemories = cards[position]
             imgbtn.setImageResource( if (cardMemories.isCardFaceUp) cardMemories.identifier else R.drawable.ic_launcher_background)
+            imgbtn.alpha=if(cardMemories.isMatches) .4f else 1.0f
+            var colorStateList=if(cardMemories.isMatches) ContextCompat.getColorStateList(context,R.color.color_blue) else null
+            ViewCompat.setBackgroundTintList(imgbtn,colorStateList)
             imgbtn.setOnClickListener{
                 Log.i(TAG,"Clicked on cards $position")
                 cardClickListener.cardClicked(position)
