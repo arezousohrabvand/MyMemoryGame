@@ -2,7 +2,7 @@ package com.example.mymemorygame.utils
 
 import com.example.mymemorygame.R
 
-
+const val EXTRA_CARD_SIZE="EXTRA_CARD_SIZE"
 //define list of drawables
 val DEFAULT_IMAGES=listOf(
         R.drawable.ic_android,

@@ -1,6 +1,7 @@
 package com.example.mymemorygame
 
 import android.animation.ArgbEvaluator
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -14,17 +15,19 @@ import com.example.mymemorygame.models.CardSize
 import com.example.mymemorygame.models.GameMemory
 import com.example.mymemorygame.utils.DEFAULT_IMAGES
 import com.google.android.material.snackbar.Snackbar
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.RadioGroup
 import androidx.appcompat.app.AlertDialog
+import com.example.mymemorygame.utils.EXTRA_CARD_SIZE
 
 class MainActivity : AppCompatActivity() {
     companion object{
         private  const val TAG="MainActivity"
+        private  const val CREATE_REQUEST_CODE=705
+
     }
 
     private  lateinit var constraintLayoutRoot:ConstraintLayout
@@ -78,8 +81,36 @@ class MainActivity : AppCompatActivity() {
                 showNewGameDialog()
                 return true
             }
+            //register and define custom game for menu item for choosing custom game and action happen when user tap on custom game
+            R.id.cutom_menu ->{
+                //function of showCustomDialog
+                showCustomDialog()
+                return true
+            }
         }
     return super.onOptionsItemSelected(item)
+    }
+//this function is similar to showNewGameDialog it is used for what size of game that we want to create
+
+    private fun showCustomDialog() {
+        val cardSizeView=LayoutInflater.from(this).inflate(R.layout.dialog_card_size,null)
+        val radioGroupSize= cardSizeView.findViewById<RadioGroup>(R.id.radioGroup)
+        showAlertWarningDialog("Make your own memory card",cardSizeView,View.OnClickListener {
+            val wantedCardNum=when (radioGroupSize.checkedRadioButtonId){
+                R.id.radioBtn1->CardSize.EASY
+                R.id.radioBtn2->CardSize.MEDIUM
+                else ->CardSize.HARD
+            }
+            
+            //navigate user to the new screen so instead of setupCardBoard here it goes to custom activity
+            val intent=Intent(this,CreateActivity::class.java)
+            intent.putExtra(EXTRA_CARD_SIZE,wantedCardNum)
+        //method for navigate to CustomActivity
+            startActivityForResult(intent,CREATE_REQUEST_CODE)
+
+
+           
+        })
     }
 
     private fun showNewGameDialog() {
