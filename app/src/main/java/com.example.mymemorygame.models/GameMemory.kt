@@ -2,9 +2,10 @@ package com.example.mymemorygame.models
 
 import com.example.mymemorygame.utils.DEFAULT_IMAGES
 
-class GameMemory (
-    private val cardSize: CardSize
-        ){
+class GameMemory(
+    private val cardSize: CardSize,
+    private val customPics: List<String>?
+){
 
 
     val cards:List<CardMemories>
@@ -14,11 +15,24 @@ class GameMemory (
     private var indexOfOneSelectedCard:Int? = null
 
     init {
-        val  imgChosen= DEFAULT_IMAGES.shuffled().take(cardSize.getPairsNum())
-        val imgRandomized=(imgChosen+imgChosen).shuffled()
-        cards=imgRandomized.map{CardMemories(it) }
+        if(customPics == null){
+            val imgChosen = DEFAULT_IMAGES.shuffled().take(cardSize.getPairsNum())
+            val imgRandomized = (imgChosen + imgChosen).shuffled()
+            cards = imgRandomized.map { CardMemories(it) }
+
+        }
+        else{
+            val randomizedPics=(customPics+customPics).shuffled()
+            cards=randomizedPics.map{CardMemories(it.hashCode(),it)
+            }
+        }
+
+
+
+
 
     }
+    //method for updating memory game with flip attempted flip at his position
     fun flipCard(position: Int):Boolean {
         flipCardsNum++
     val card=cards[position]

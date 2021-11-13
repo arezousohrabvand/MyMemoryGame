@@ -11,7 +11,7 @@
         android:id="@+id/gameInfoBoard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/purple_700"
+        android:background="#260d1a"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -22,7 +22,7 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            app:cardBackgroundColor="#8BC34A"
+            app:cardBackgroundColor="#d98cd9"
             app:cardCornerRadius="8dp">
 
             <TextView
@@ -41,7 +41,7 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            app:cardBackgroundColor="#8BC34A"
+            app:cardBackgroundColor="#d98cd9"
             app:cardCornerRadius="8dp">
 
             <TextView
@@ -61,9 +61,9 @@
         android:id="@+id/recyclerViewBoard"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        android:background="#DBEC3D"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:background="#260d26"
         app:layout_constraintBottom_toTopOf="@+id/gameInfoBoard"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

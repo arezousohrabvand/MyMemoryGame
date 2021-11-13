@@ -3,11 +3,12 @@ package com.example.mymemorygame.utils
 import com.example.mymemorygame.R
 
 const val EXTRA_CARD_SIZE="EXTRA_CARD_SIZE"
-//define list of drawables
+const val EXTRA_GAME_NAME="EXTRA_GAME_NAME"
+//define list of drawables and constants
 val DEFAULT_IMAGES=listOf(
         R.drawable.ic_android,
         R.drawable.ic_bunny,
-    R.drawable.ic_cake,
+    R.drawable.ic_basket,
     R.drawable.ic_cloud,
     R.drawable.ic_fire,
     R.drawable.ic_grass,

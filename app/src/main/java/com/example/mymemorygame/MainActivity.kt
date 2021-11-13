@@ -1,6 +1,7 @@
 package com.example.mymemorygame
 
 import android.animation.ArgbEvaluator
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -21,7 +22,11 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.RadioGroup
 import androidx.appcompat.app.AlertDialog
+import com.example.mymemorygame.models.UserImgList
 import com.example.mymemorygame.utils.EXTRA_CARD_SIZE
+import com.example.mymemorygame.utils.EXTRA_GAME_NAME
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
     companion object{
@@ -29,6 +34,9 @@ class MainActivity : AppCompatActivity() {
         private  const val CREATE_REQUEST_CODE=705
 
     }
+    private  var customizeGameImg:List<String>?=null
+    private val database= Firebase.firestore
+    private  var  gameName:String? = null
 
     private  lateinit var constraintLayoutRoot:ConstraintLayout
     private lateinit var recyclerViewBoard:RecyclerView
@@ -47,9 +55,10 @@ class MainActivity : AppCompatActivity() {
         numMoves=findViewById(R.id.numMoves)
         numPairs=findViewById(R.id.numPairs)
 
-        // pass into the adapter image drawables
+        // pass into the adapter image drawables which make the game
         val  imgChosen=DEFAULT_IMAGES.shuffled().take(cardSize.getPairsNum())
         val imgRandomized=(imgChosen+imgChosen).shuffled()
+        //create list of memory cards
         val cardMemories=imgRandomized.map{CardMemories(it) }
 
        setupCardBoard()
@@ -66,9 +75,10 @@ class MainActivity : AppCompatActivity() {
 //method for selecting options
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId){
-
+            //setup a game again with refresh menu item
             R.id.ref_menu ->{
                 if(gameMemory.getNumMoves()>0 && !gameMemory.winGame()){
+                    //show the alert dialog because its close to wining but user hit the refresh btn
                     showAlertWarningDialog("Do you want to quit?",null,View.OnClickListener { setupCardBoard() })
 
                 }
@@ -77,6 +87,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 return true
             }
+            //menu item for choosing the game size
             R.id.size_menu ->{
                 showNewGameDialog()
                 return true
@@ -89,6 +100,41 @@ class MainActivity : AppCompatActivity() {
             }
         }
     return super.onOptionsItemSelected(item)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(requestCode== CREATE_REQUEST_CODE && resultCode == Activity.RESULT_OK){
+            val customGName=data?.getStringExtra(EXTRA_GAME_NAME)
+            if(customGName == null){
+                Log.e(TAG,"Error from Create Activity ")
+                return
+            }
+            dlGame(customGName)
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun dlGame(customizeGameName: String) {
+        database.collection("memorygame").document(customizeGameName).get().addOnSuccessListener {document ->
+            val userImgList=document.toObject(UserImgList::class.java)
+            if (userImgList?.images == null){
+                Log.e(TAG,"Error from Firestore because your data is invalid")
+                Snackbar.make(recyclerViewBoard,"Sorry , your game is not found '$customizeGameName'",Snackbar.LENGTH_SHORT).show()
+                return@addOnSuccessListener
+            }
+            val cardNumbers=userImgList .images.size * 2
+            cardSize=CardSize.getByValue(cardNumbers)
+            customizeGameImg=userImgList.images
+            setupCardBoard()
+            gameName=customizeGameName
+
+
+
+        }.addOnFailureListener{exception ->
+            Log.e(TAG,"Exception Error",exception)
+
+        }
+
     }
 //this function is similar to showNewGameDialog it is used for what size of game that we want to create
 
@@ -112,7 +158,7 @@ class MainActivity : AppCompatActivity() {
            
         })
     }
-
+//method for  size_menu  item and showing the radio btn which one to choose
     private fun showNewGameDialog() {
 
         val cardSizeView=LayoutInflater.from(this).inflate(R.layout.dialog_card_size,null)
@@ -132,6 +178,7 @@ class MainActivity : AppCompatActivity() {
 
         })
     }
+    //method for setup The game and when you use refresh menu item it set up again with method
 
     private fun setupCardBoard() {
         when(cardSize){
@@ -144,13 +191,13 @@ class MainActivity : AppCompatActivity() {
                 numPairs.text="Pairs:0/9"
             }
             CardSize.HARD -> {
-                numMoves.text="Hard: 6*6"
+                numMoves.text="Hard: 6*4"
                 numPairs.text="Pairs:0/12"
             }
         }
         numPairs.setTextColor(ContextCompat.getColor(this,R.color.color_progress_stop))
         //construct GameMemory
-        gameMemory=GameMemory(cardSize)
+        gameMemory=GameMemory(cardSize,customizeGameImg)
         //setup recycler view
         //adapter binding dataset to the view of recyclerview
         adapter=MemoryCardAdapter(this,cardSize,gameMemory.cards,object :MemoryCardAdapter.CardClickListener{
@@ -164,7 +211,7 @@ class MainActivity : AppCompatActivity() {
         recyclerViewBoard.layoutManager= GridLayoutManager(this,cardSize.getWidth())
         recyclerViewBoard.setHasFixedSize(true)
     }
-
+//method for showing alert and warning
 
     private fun showAlertWarningDialog(title:String, view: View?,positiveClickListener: View.OnClickListener) {
         AlertDialog.Builder(this)
@@ -177,7 +224,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
+//method for updating memory game with flip attempted flip at his position
     private fun updateCardFlip(position: Int) {
         if(gameMemory.winGame()){
             Snackbar.make(constraintLayoutRoot,"You are won",Snackbar.LENGTH_LONG).show()

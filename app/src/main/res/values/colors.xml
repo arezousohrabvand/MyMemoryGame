@@ -10,4 +10,5 @@
     <color name="color_blue">#009999</color>
     <color name="color_progress_stop">#e60000</color>
     <color name="color_progress_pass">#0000ff</color>
+    <color name="color_purple">#d580ff</color>
 </resources>
